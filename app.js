@@ -1,6 +1,8 @@
 const express = require("express");
 const { read } = require("fs");
-const { supportsColor } = require("supports-color");
+// const { supportsColor } = require("supports-color");
+// 3rd party middleware
+const morgan = require("morgan");
 
 // express app
 const app = express();
@@ -12,13 +14,20 @@ app.set("view engine", "ejs"); // by default it will look int views folder
 // listening for request 
 app.listen(3000);
 
-app.use((req,res,next) => {
-    console.log("new request made:");
-    console.log("host: ", req.hostname);
-    console.log("path: ", req.path);
-    console.log("method: ", req.method);
-    next();
-});
+// middleware and static files
+app.use(express.static("public")); // anything inside this folder will be made avilable as static file
+
+// 3rd party middleware
+app.use(morgan("dev"));
+app.use(morgan("tiny"));
+
+// app.use((req,res,next) => {
+//     console.log("new request made:");
+//     console.log("host: ", req.hostname);
+//     console.log("path: ", req.path);
+//     console.log("method: ", req.method);
+//     next();
+// });
 
 app.get("/", (req,res) => {
     //automatically sets the content type and also sets the sataus code
@@ -33,11 +42,11 @@ app.get("/", (req,res) => {
     res.render("index", { title: "Home", blogs: blogs});
 });
 
-// if we search for / the below code is not reached
-app.use((req,res,next) => {
-    console.log("next middleware")
-    next();
-});
+// if we search for / the below code is not executed
+// app.use((req,res,next) => {
+//     console.log("next middleware")
+//     next();
+// });
 
 app.get("/about", (req,res) => {
     //automatically sets the content type and also sets the sataus code
