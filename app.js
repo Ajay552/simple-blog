@@ -12,6 +12,14 @@ app.set("view engine", "ejs"); // by default it will look int views folder
 // listening for request 
 app.listen(3000);
 
+app.use((req,res,next) => {
+    console.log("new request made:");
+    console.log("host: ", req.hostname);
+    console.log("path: ", req.path);
+    console.log("method: ", req.method);
+    next();
+});
+
 app.get("/", (req,res) => {
     //automatically sets the content type and also sets the sataus code
     // res.send("<p> Home page</p>");
@@ -23,6 +31,12 @@ app.get("/", (req,res) => {
       ];
 
     res.render("index", { title: "Home", blogs: blogs});
+});
+
+// if we search for / the below code is not reached
+app.use((req,res,next) => {
+    console.log("next middleware")
+    next();
 });
 
 app.get("/about", (req,res) => {
