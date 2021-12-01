@@ -1,8 +1,13 @@
 const express = require("express");
 const { read } = require("fs");
+const { supportsColor } = require("supports-color");
 
 // express app
 const app = express();
+
+// register view engine (ejs)
+app.set("view engine", "ejs"); // by default it will look int views folder
+// app.set("views", "myviews"); // if other folder set the folder
 
 // listening for request 
 app.listen(3000);
