@@ -11,14 +11,16 @@ const morgan = require("morgan");
 const app = express();
 
 // connecting to mongodb
-const dbURI = "mongodb+srv://Ajay:<9886565220>@nodeblog.y7zwz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+const dbURI = "mongodb+srv://Ajay:9886565220@nodeblog.y7zwz.mongodb.net/NodeBlog?retryWrites=true&w=majority";
+mongoose.connect(dbURI) // this is ASync so returns a promice
+    .then((result) => app.listen(3000))
+    .catch((err) => console.log(err));
 
 // register view engine (ejs)
 app.set("view engine", "ejs"); // by default it will look int views folder
 // app.set("views", "myviews"); // if other folder set the folder
 
 // listening for request 
-app.listen(3000);
 
 // middleware and static files
 app.use(express.static("public")); // anything inside this folder will be made avilable as static file
