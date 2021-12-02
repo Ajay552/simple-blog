@@ -1,11 +1,17 @@
 const express = require("express");
-const { read } = require("fs");
+// const { read } = require("fs");
+const mongoose = require("mongoose");
+
+
 // const { supportsColor } = require("supports-color");
 // 3rd party middleware
 const morgan = require("morgan");
 
 // express app
 const app = express();
+
+// connecting to mongodb
+const dbURI = "mongodb+srv://Ajay:<9886565220>@nodeblog.y7zwz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
 
 // register view engine (ejs)
 app.set("view engine", "ejs"); // by default it will look int views folder
