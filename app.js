@@ -1,6 +1,7 @@
 const express = require("express");
 // const { read } = require("fs");
 const mongoose = require("mongoose");
+const Blog = require("./models/blog");
 
 
 // const { supportsColor } = require("supports-color");
@@ -28,6 +29,45 @@ app.use(express.static("public")); // anything inside this folder will be made a
 // 3rd party middleware
 app.use(morgan("dev"));
 app.use(morgan("tiny"));
+
+// mongoose and mongo sandbox routes
+app.get("/add-blog", (req,res) => {
+    const blog = new Blog({
+        title: "new blog 2",
+        snippet: "about my new blog",
+        body: "mode about my new blog"
+    });
+
+    // store in the database
+    blog.save()  // this is an async task
+        .then((result) => {
+            res.send(result);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+});
+
+app.get("/all-blog", (req,res) => {
+    Blog.find()  // gets all blogs and we use directly on th Blog not the instance while finding
+        .then((result) => {
+            res.send(result);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+});
+
+
+app.get("/single-blog", (req,res) => {
+    Blog.findById("61a8d36de2d609466fe4378c")  
+        .then((result) => {
+            res.send(result);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+});
 
 // app.use((req,res,next) => {
 //     console.log("new request made:");
