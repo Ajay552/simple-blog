@@ -1,19 +1,19 @@
 const express = require("express");
-// const { read } = require("fs");
+// const { fs } = require("fs");
+// const morgan = require("morgan");
 const mongoose = require("mongoose");
 const Blog = require("./models/blog");
 
-
-// const { supportsColor } = require("supports-color");
 // 3rd party middleware
 const morgan = require("morgan");
+const render = require("ejs");
 
 // express app
 const app = express();
 
 // connecting to mongodb
 const dbURI = "mongodb+srv://Ajay:9886565220@nodeblog.y7zwz.mongodb.net/NodeBlog?retryWrites=true&w=majority";
-mongoose.connect(dbURI) // this is ASync so returns a promice
+mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true }) // this is ASync so returns a promice
     .then((result) => app.listen(3000))
     .catch((err) => console.log(err));
 
@@ -24,50 +24,13 @@ app.set("view engine", "ejs"); // by default it will look int views folder
 // listening for request 
 
 // middleware and static files
-app.use(express.static("public")); // anything inside this folder will be made avilable as static file
+app.use(express.static("public")); // anything inside this folder will be made avilable as static file (for files like css)
+
+app.use(express.urlencoded({ extended: true})); // takes all the url encoded data and passes that into  an obj that can be used in request obj
 
 // 3rd party middleware
-app.use(morgan("dev"));
-app.use(morgan("tiny"));
-
-// mongoose and mongo sandbox routes
-app.get("/add-blog", (req,res) => {
-    const blog = new Blog({
-        title: "new blog 2",
-        snippet: "about my new blog",
-        body: "mode about my new blog"
-    });
-
-    // store in the database
-    blog.save()  // this is an async task
-        .then((result) => {
-            res.send(result);
-        })
-        .catch((err) => {
-            console.log(err);
-        });
-});
-
-app.get("/all-blog", (req,res) => {
-    Blog.find()  // gets all blogs and we use directly on th Blog not the instance while finding
-        .then((result) => {
-            res.send(result);
-        })
-        .catch((err) => {
-            console.log(err);
-        });
-});
-
-
-app.get("/single-blog", (req,res) => {
-    Blog.findById("61a8d36de2d609466fe4378c")  
-        .then((result) => {
-            res.send(result);
-        })
-        .catch((err) => {
-            console.log(err);
-        });
-});
+// app.use(morgan("dev"));
+// app.use(morgan("tiny"));
 
 // app.use((req,res,next) => {
 //     console.log("new request made:");
@@ -78,16 +41,7 @@ app.get("/single-blog", (req,res) => {
 // });
 
 app.get("/", (req,res) => {
-    //automatically sets the content type and also sets the sataus code
-    // res.send("<p> Home page</p>");
-
-    const blogs = [
-        {title: 'Yoshi finds eggs', snippet: 'Lorem ipsum dolor sit amet consectetur'},
-        {title: 'Mario finds stars', snippet: 'Lorem ipsum dolor sit amet consectetur'},
-        {title: 'How to defeat bowser', snippet: 'Lorem ipsum dolor sit amet consectetur'},
-      ];
-
-    res.render("index", { title: "Home", blogs: blogs});
+    res.redirect("/blogs")
 });
 
 // if we search for / the below code is not executed
@@ -96,6 +50,8 @@ app.get("/", (req,res) => {
 //     next();
 // });
 
+// blog routes
+
 app.get("/about", (req,res) => {
     //automatically sets the content type and also sets the sataus code
     // res.send("<p> Home page</p>");
@@ -103,14 +59,62 @@ app.get("/about", (req,res) => {
     res.render("about", { title: "about"});
 });
 
+app.get("/blogs/create", (req,res) => {
+    res.render("create", { title: "create a new blog"});
+});
+
+app.get("/blogs", (req,res) => {
+    Blog.find().sort({ createdAt: -1 }) // sorts by time stamp so -1 is shows newest blog
+        .then((result) => {
+            res.render("index", {title: "All Blogs", blogs: result });
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+});
+
+app.post("/blogs", (req,res) => {
+    // console.log(req.body);
+    const blog = new Blog(req.body);
+
+    blog.save()
+        .then((result) => {
+            res.redirect("/blogs")
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+});
+
+app.get("/blogs/:id", (req, res) => {
+    const id = req.params.id;
+    Blog.findById(id)
+        .then(result => {
+            res.render("details", { blog: result, title: "blog Details" });
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+});
+
+app.delete("/blogs/:id", (req, res) => {
+    const id = req.params.id;
+
+    Blog.findByIdAndDelete(id)
+        .then((result) => {
+            res.json({ redirect: "/blogs" });
+        })
+        .catch((err) => {
+            console.log(err)
+        });
+});
+
+
+
 // redirect page
 // app.get("/about-us", (req,res) => {
 //     res.redirect("/about");
 // });
-
-app.get("/blogs/create", (req,res) => {
-    res.render("create", { title: "create"});
-});
 
 // 404 page
 // and this code must be at the bottom
