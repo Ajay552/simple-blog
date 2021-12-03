@@ -2,7 +2,9 @@ const express = require("express");
 // const { fs } = require("fs");
 // const morgan = require("morgan");
 const mongoose = require("mongoose");
-const Blog = require("./models/blog");
+// const Blog = require("./models/blog");
+
+const blogRoutes = require("./routes/blogRoutes");
 
 // 3rd party middleware
 const morgan = require("morgan");
@@ -45,12 +47,10 @@ app.get("/", (req,res) => {
 });
 
 // if we search for / the below code is not executed
-// app.use((req,res,next) => {
+// app.use((req,re s,next) => {
 //     console.log("next middleware")
 //     next();
 // });
-
-// blog routes
 
 app.get("/about", (req,res) => {
     //automatically sets the content type and also sets the sataus code
@@ -59,56 +59,8 @@ app.get("/about", (req,res) => {
     res.render("about", { title: "about"});
 });
 
-app.get("/blogs/create", (req,res) => {
-    res.render("create", { title: "create a new blog"});
-});
-
-app.get("/blogs", (req,res) => {
-    Blog.find().sort({ createdAt: -1 }) // sorts by time stamp so -1 is shows newest blog
-        .then((result) => {
-            res.render("index", {title: "All Blogs", blogs: result });
-        })
-        .catch((err) => {
-            console.log(err);
-        });
-});
-
-app.post("/blogs", (req,res) => {
-    // console.log(req.body);
-    const blog = new Blog(req.body);
-
-    blog.save()
-        .then((result) => {
-            res.redirect("/blogs")
-        })
-        .catch((err) => {
-            console.log(err);
-        })
-});
-
-app.get("/blogs/:id", (req, res) => {
-    const id = req.params.id;
-    Blog.findById(id)
-        .then(result => {
-            res.render("details", { blog: result, title: "blog Details" });
-        })
-        .catch((err) => {
-            console.log(err);
-        })
-});
-
-app.delete("/blogs/:id", (req, res) => {
-    const id = req.params.id;
-
-    Blog.findByIdAndDelete(id)
-        .then((result) => {
-            res.json({ redirect: "/blogs" });
-        })
-        .catch((err) => {
-            console.log(err)
-        });
-});
-
+// blog routes
+app.use("/blogs",blogRoutes);
 
 
 // redirect page
