@@ -2,7 +2,10 @@ const express = require("express");
 // const { fs } = require("fs");
 // const morgan = require("morgan");
 const mongoose = require("mongoose");
+const dotenv = require("dotenv");
 // const Blog = require("./models/blog");
+
+dotenv.config();
 
 const blogRoutes = require("./routes/blogRoutes");
 
@@ -14,7 +17,7 @@ const render = require("ejs");
 const app = express();
 
 // connecting to mongodb
-const dbURI = "mongodb+srv://Ajay:9886565220@nodeblog.y7zwz.mongodb.net/NodeBlog?retryWrites=true&w=majority";
+const dbURI = process.env.MONGO_URI;
 mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true }) // this is ASync so returns a promice
     .then((result) => app.listen(3000))
     .catch((err) => console.log(err));
